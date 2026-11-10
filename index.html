@@ -1,1 +1,666 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1424">
+<title>Ochii Global Holdings | Executive Command Centre</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --bg:#0b1424;
+  --panel:#111f34;
+  --panel2:#172941;
+  --line:#263a55;
+  --gold:#d6b66b;
+  --blue:#4389e8;
+  --text:#edf2fa;
+  --muted:#9aabc1;
+  --green:#48c99a;
+  --red:#ed7777;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,Arial,sans-serif;min-height:100vh;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:42px;height:42px;border-radius:12px;
+  display:grid;place-items:center;background:var(--gold);
+  color:#101a2b;font-weight:900;font-size:23px;
+}
+.brand-name{font-weight:800;letter-spacing:1.2px}
+.brand-tag{font-size:10px;letter-spacing:2px;color:var(--gold);margin-top:4px}
+.muted{color:var(--muted)}
+.gold{color:var(--gold)}
+.small{font-size:12px}
+.auth-wrap{
+  min-height:100vh;display:flex;align-items:center;
+  justify-content:center;padding:24px;
+  background:
+  radial-gradient(ellipse at 50% 0%,#1d3554 0%,transparent 55%),
+  var(--bg);
+}
+.auth-card{
+  width:100%;max-width:440px;background:var(--panel);
+  border:1px solid var(--line);border-radius:20px;
+  padding:32px;box-shadow:0 24px 80px #0005;
+}
+.auth-card .brand{margin-bottom:36px}
+.auth-card h1{font-size:29px;margin:0 0 9px}
+.auth-card p{line-height:1.6}
+.field{margin-top:19px}
+.field label{
+  display:block;font-size:11px;font-weight:700;
+  letter-spacing:1.3px;color:#c2cede;margin-bottom:9px;
+}
+.field input{
+  width:100%;padding:14px;background:#0c192b;
+  color:white;border:1px solid var(--line);
+  border-radius:9px;outline:none;
+}
+.field input:focus{border-color:var(--blue)}
+.primary{
+  border:0;background:var(--gold);color:#111b2b;
+  font-weight:800;border-radius:9px;padding:14px 18px;
+}
+.primary:hover{filter:brightness(1.08)}
+.full{width:100%;margin-top:22px}
+.link{
+  background:none;border:0;color:var(--gold);
+  padding:0;text-decoration:none;font-size:13px;
+}
+.auth-links{
+  display:flex;justify-content:space-between;
+  gap:12px;margin-top:19px;flex-wrap:wrap;
+}
+.message{
+  margin-top:16px;padding:12px;border-radius:9px;
+  background:#1a3048;color:#dce8f7;
+  font-size:13px;line-height:1.5;
+}
+.message.error{background:#48242c;color:#ffd7d7}
+.message.success{background:#163a32;color:#c5f5e4}
+.auth-footer{
+  text-align:center;margin-top:30px;color:#72849d;
+  font-size:10px;letter-spacing:1.5px;
+}
+.app{min-height:100vh}
+.topbar{
+  height:76px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;background:#0d192a;
+  position:sticky;top:0;z-index:5;
+}
+.top-actions{display:flex;align-items:center;gap:15px}
+.user-chip{
+  background:var(--panel2);border:1px solid var(--line);
+  padding:9px 13px;border-radius:9px;font-size:12px;
+}
+.logout{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--line);padding:9px 13px;border-radius:8px;
+}
+.layout{display:flex;min-height:calc(100vh - 76px)}
+.sidebar{
+  width:245px;flex-shrink:0;padding:24px 15px;
+  border-right:1px solid var(--line);background:#0e1a2b;
+}
+.nav-label{
+  color:#70839d;font-size:10px;font-weight:800;
+  letter-spacing:1.5px;padding:17px 12px 9px;
+}
+.nav-item{
+  display:block;width:100%;text-align:left;
+  background:transparent;color:#bdcadd;
+  border:0;padding:12px;border-radius:8px;
+  margin:3px 0;font-size:13px;
+}
+.nav-item:hover,.nav-item.active{
+  background:#1a2e49;color:var(--gold);
+}
+.main{flex:1;min-width:0;padding:30px}
+.page-heading{
+  display:flex;justify-content:space-between;
+  align-items:flex-start;gap:15px;flex-wrap:wrap;
+  margin-bottom:27px;
+}
+.page-heading h1{margin:0 0 8px;font-size:26px}
+.grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:15px;
+}
+.panel{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:13px;padding:20px;min-width:0;
+}
+.metric-label{
+  color:var(--muted);font-size:11px;
+  text-transform:uppercase;letter-spacing:1px;
+}
+.metric-value{font-size:25px;font-weight:800;margin-top:13px}
+.section-title{font-size:16px;margin:0 0 17px}
+.sub-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.sub-card{
+  padding:17px;background:#14253b;
+  border:1px solid var(--line);border-radius:10px;
+}
+.sub-card h3{font-size:13px;margin:0 0 8px}
+.sub-card p{font-size:11px;color:var(--muted);margin:0;line-height:1.5}
+.status-dot{
+  display:inline-block;width:7px;height:7px;
+  border-radius:50%;background:var(--green);margin-right:7px;
+}
+.notice{
+  border:1px solid #66552e;background:#2b261b;
+  color:#f0dba9;padding:16px;border-radius:10px;
+  line-height:1.6;font-size:13px;margin-bottom:20px;
+}
+.access-card{
+  margin-top:18px;padding:22px;background:#14253b;
+  border:1px solid var(--line);border-radius:12px;
+}
+.footer{
+  margin-top:35px;padding:18px 0;
+  border-top:1px solid var(--line);
+  color:#72849d;font-size:10px;letter-spacing:1px;
+}
+@media(max-width:950px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sidebar{width:205px}
+}
+@media(max-width:650px){
+  .topbar{padding:0 14px;height:68px}
+  .brand-name{font-size:11px}
+  .brand-tag{font-size:8px}
+  .brand-mark{width:35px;height:35px}
+  .user-chip{display:none}
+  .layout{display:block}
+  .sidebar{
+    width:100%;display:flex;overflow-x:auto;
+    padding:8px;border-right:0;border-bottom:1px solid var(--line);
+    gap:5px;
+  }
+  .nav-label{display:none}
+  .nav-item{white-space:nowrap;width:auto;padding:10px}
+  .main{padding:20px 14px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .panel{padding:15px}
+  .metric-value{font-size:20px}
+  .sub-grid{grid-template-columns:1fr}
+  .auth-card{padding:23px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- AUTHENTICATION -->
+<section id="authScreen" class="auth-wrap">
+  <div class="auth-card">
+
+    <div class="brand">
+      <div class="brand-mark">O</div>
+      <div>
+        <div class="brand-name">OCHII GLOBAL HOLDINGS</div>
+        <div class="brand-tag">STRATEGIC CAPITAL & INNOVATION</div>
+      </div>
+    </div>
+
+    <div id="loginPanel">
+      <h1>Welcome back.</h1>
+      <p class="muted">Sign in to your executive command centre.</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label>EMAIL ADDRESS</label>
+          <input id="loginEmail" type="email" required autocomplete="email"
+                 placeholder="Enter your email">
+        </div>
+        <div class="field">
+          <label>PASSWORD</label>
+          <input id="loginPassword" type="password" required
+                 autocomplete="current-password" placeholder="Enter your password">
+        </div>
+        <button class="primary full" type="submit">SIGN IN</button>
+      </form>
+
+      <div class="auth-links">
+        <button class="link" onclick="showAuth('forgot')">Forgot password?</button>
+        <button class="link" onclick="showAuth('signup')">Create account</button>
+      </div>
+    </div>
+
+    <div id="signupPanel" class="hidden">
+      <h1>Create account.</h1>
+      <p class="muted">Register for secure OGH platform access.</p>
+      <form id="signupForm">
+        <div class="field">
+          <label>FULL NAME</label>
+          <input id="signupName" required autocomplete="name"
+                 placeholder="Your full name">
+        </div>
+        <div class="field">
+          <label>EMAIL ADDRESS</label>
+          <input id="signupEmail" type="email" required autocomplete="email"
+                 placeholder="Your email">
+        </div>
+        <div class="field">
+          <label>PASSWORD</label>
+          <input id="signupPassword" type="password" required minlength="8"
+                 autocomplete="new-password" placeholder="At least 8 characters">
+        </div>
+        <button class="primary full" type="submit">CREATE ACCOUNT</button>
+      </form>
+      <div class="auth-links">
+        <button class="link" onclick="showAuth('login')">Back to login</button>
+      </div>
+    </div>
+
+    <div id="forgotPanel" class="hidden">
+      <h1>Recover access.</h1>
+      <p class="muted">Enter your registered email address to receive a password recovery link.</p>
+      <form id="forgotForm">
+        <div class="field">
+          <label>EMAIL ADDRESS</label>
+          <input id="forgotEmail" type="email" required
+                 placeholder="Your registered email">
+        </div>
+        <button class="primary full" type="submit">SEND RECOVERY LINK</button>
+      </form>
+      <div class="auth-links">
+        <button class="link" onclick="showAuth('login')">Back to login</button>
+      </div>
+    </div>
+
+    <div id="resetPanel" class="hidden">
+      <h1>Reset password.</h1>
+      <p class="muted">Choose a new password for your account.</p>
+      <form id="resetForm">
+        <div class="field">
+          <label>NEW PASSWORD</label>
+          <input id="newPassword" type="password" minlength="8" required
+                 autocomplete="new-password">
+        </div>
+        <button class="primary full" type="submit">UPDATE PASSWORD</button>
+      </form>
+    </div>
+
+    <div id="authMessage" class="hidden message"></div>
+    <div class="auth-footer">SECURE ACCESS • OGH GLOBAL CORE</div>
+  </div>
+</section>
+
+<!-- APPLICATION -->
+<section id="appScreen" class="app hidden">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">O</div>
+      <div>
+        <div class="brand-name">OCHII GLOBAL HOLDINGS</div>
+        <div class="brand-tag">EXECUTIVE COMMAND CENTRE</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="user-chip" id="userEmail">Authenticated user</div>
+      <button class="logout" id="logoutButton">Sign out</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="nav-label">COMMAND CENTRE</div>
+      <button class="nav-item active" data-page="overview">◈ Overview</button>
+      <button class="nav-item" data-page="subsidiaries">▦ Subsidiaries</button>
+      <button class="nav-item" data-page="projects">▤ Projects</button>
+      <button class="nav-item" data-page="departments">▥ Departments</button>
+
+      <div class="nav-label">MANAGEMENT</div>
+      <button class="nav-item" data-page="people">♙ People & Teams</button>
+      <button class="nav-item" data-page="reports">▧ Reports</button>
+
+      <div class="nav-label">GOVERNANCE</div>
+      <button class="nav-item" data-page="security">◇ Security & Access</button>
+      <button class="nav-item" data-page="settings">⚙ Settings</button>
+    </aside>
+
+    <main class="main">
+      <div id="dashboardContent">
+        <div class="page-heading">
+          <div>
+            <div class="gold small">GROUP HEADQUARTERS</div>
+            <h1>Executive Overview</h1>
+            <p class="muted small">Ochii Global Holdings Ltd. • Strategic Capital & Innovation</p>
+          </div>
+          <div class="small muted" id="today"></div>
+        </div>
+
+        <div id="accessNotice" class="notice hidden"></div>
+
+        <div class="grid">
+          <div class="panel">
+            <div class="metric-label">Subsidiaries</div>
+            <div class="metric-value">08</div>
+            <div class="muted small">Registered business units</div>
+          </div>
+          <div class="panel">
+            <div class="metric-label">Your role</div>
+            <div class="metric-value" id="roleMetric">Pending</div>
+            <div class="muted small">Account authorization</div>
+          </div>
+          <div class="panel">
+            <div class="metric-label">Account status</div>
+            <div class="metric-value" style="font-size:18px">
+              <span class="status-dot"></span>Authenticated
+            </div>
+            <div class="muted small">Supabase session</div>
+          </div>
+          <div class="panel">
+            <div class="metric-label">Database</div>
+            <div class="metric-value" style="font-size:18px">Connected</div>
+            <div class="muted small">OGH Global Core</div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:20px">
+          <h2 class="section-title">Corporate structure</h2>
+          <div class="sub-grid" id="subsidiaryGrid"></div>
+        </div>
+
+        <div id="membershipNotice" class="access-card hidden">
+          <h3 class="gold">Account awaiting authorization</h3>
+          <p class="muted small">
+            Your account is authenticated, but no active OGH company membership
+            has been assigned. Administrative access is therefore restricted.
+            The Group Owner must authorize your account.
+          </p>
+        </div>
+
+        <div class="footer">
+          OCHII GLOBAL HOLDINGS LTD. • CONFIDENTIAL CORPORATE PLATFORM
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<script>
+const SUPABASE_URL = "https://zkccbcyoomkyzktjpkfv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_uv9DKvMqhQ0hM5q3Gp0ERA_eFZoQVX6";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const subsidiaries = [
+  ["CAPITAL_MARKETS","OGH Capital Markets"],
+  ["FINANCIAL_SERVICES","OGH Financial Services"],
+  ["TECHNOLOGIES","OGH Technologies"],
+  ["ENERGY","OGH Energy"],
+  ["AGRI_VENTURES","OGH Agri Ventures"],
+  ["HEALTHCARE","OGH Healthcare Group"],
+  ["INFRASTRUCTURE","OGH Infrastructure"],
+  ["MEDIA","OGH Media"]
+];
+
+const authScreen = document.getElementById("authScreen");
+const appScreen = document.getElementById("appScreen");
+const authMessage = document.getElementById("authMessage");
+
+function showMessage(message, type="normal") {
+  authMessage.textContent = message;
+  authMessage.className = "message " + type;
+  authMessage.classList.remove("hidden");
+}
+
+function clearMessage() {
+  authMessage.textContent = "";
+  authMessage.className = "hidden message";
+}
+
+function showAuth(panel) {
+  ["login","signup","forgot","reset"].forEach(name => {
+    document.getElementById(name+"Panel").classList.toggle(
+      "hidden", name !== panel
+    );
+  });
+  clearMessage();
+}
+
+function setLoading(button, loading, originalText) {
+  button.disabled = loading;
+  button.textContent = loading ? "PLEASE WAIT..." : originalText;
+}
+
+async function loadDashboard(session) {
+  authScreen.classList.add("hidden");
+  appScreen.classList.remove("hidden");
+
+  document.getElementById("userEmail").textContent =
+    session.user.email || "Authenticated user";
+
+  document.getElementById("today").textContent =
+    new Date().toLocaleDateString(undefined,{
+      weekday:"long",year:"numeric",month:"long",day:"numeric"
+    });
+
+  document.getElementById("subsidiaryGrid").innerHTML =
+    subsidiaries.map(item => `
+      <div class="sub-card">
+        <h3>${item[1]}</h3>
+        <p>Corporate subsidiary workspace</p>
+      </div>
+    `).join("");
+
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("id,role,status,company_id,subsidiary_id")
+    .eq("user_id", session.user.id)
+    .eq("status","active");
+
+  if (error) {
+    document.getElementById("accessNotice").textContent =
+      "Your session is active, but membership verification could not be completed. Please contact the system administrator.";
+    document.getElementById("accessNotice").classList.remove("hidden");
+    document.getElementById("membershipNotice").classList.add("hidden");
+    document.getElementById("roleMetric").textContent = "Unverified";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    document.getElementById("roleMetric").textContent = "Pending";
+    document.getElementById("membershipNotice").classList.remove("hidden");
+    document.getElementById("accessNotice").classList.add("hidden");
+    return;
+  }
+
+  document.getElementById("membershipNotice").classList.add("hidden");
+
+  const ownerMembership = data.find(m =>
+    m.subsidiary_id === null &&
+    ["owner","group_admin"].includes(m.role)
+  );
+
+  const role = ownerMembership
+    ? ownerMembership.role
+    : data[0].role;
+
+  document.getElementById("roleMetric").textContent =
+    role.replace("_"," ").replace(/\b\w/g,c=>c.toUpperCase());
+
+  document.getElementById("accessNotice").classList.add("hidden");
+}
+
+async function checkSession() {
+  const {data,error} = await supabase.auth.getSession();
+  if(error) {
+    showAuth("login");
+    showMessage(error.message,"error");
+    return;
+  }
+
+  if(data.session) {
+    await loadDashboard(data.session);
+  } else {
+    authScreen.classList.remove("hidden");
+    appScreen.classList.add("hidden");
+  }
+}
+
+// LOGIN
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const button=e.submitter;
+  setLoading(button,true,"SIGN IN");
+
+  const {data,error}=await supabase.auth.signInWithPassword({
+    email:document.getElementById("loginEmail").value.trim(),
+    password:document.getElementById("loginPassword").value
+  });
+
+  setLoading(button,false,"SIGN IN");
+
+  if(error) {
+    showMessage(error.message,"error");
+    return;
+  }
+  if(data.session) await loadDashboard(data.session);
+});
+
+// CREATE ACCOUNT
+document.getElementById("signupForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const button=e.submitter;
+  setLoading(button,true,"CREATE ACCOUNT");
+
+  const {data,error}=await supabase.auth.signUp({
+    email:document.getElementById("signupEmail").value.trim(),
+    password:document.getElementById("signupPassword").value,
+    options:{
+      data:{
+        full_name:document.getElementById("signupName").value.trim()
+      },
+      emailRedirectTo:window.location.origin+window.location.pathname
+    }
+  });
+
+  setLoading(button,false,"CREATE ACCOUNT");
+
+  if(error) {
+    showMessage(error.message,"error");
+    return;
+  }
+
+  if(data.session) {
+    await loadDashboard(data.session);
+  } else {
+    showMessage(
+      "Registration submitted. Check your email to confirm your account before signing in.",
+      "success"
+    );
+    showAuth("login");
+  }
+});
+
+// FORGOT PASSWORD
+document.getElementById("forgotForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const button=e.submitter;
+  setLoading(button,true,"SEND RECOVERY LINK");
+
+  const {error}=await supabase.auth.resetPasswordForEmail(
+    document.getElementById("forgotEmail").value.trim(),
+    {
+      redirectTo:window.location.origin+window.location.pathname
+    }
+  );
+
+  setLoading(button,false,"SEND RECOVERY LINK");
+
+  if(error) {
+    showMessage(error.message,"error");
+  } else {
+    showMessage(
+      "If an account exists for that email, a password recovery link will be sent.",
+      "success"
+    );
+  }
+});
+
+// RESET PASSWORD
+document.getElementById("resetForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const button=e.submitter;
+  setLoading(button,true,"UPDATE PASSWORD");
+
+  const {error}=await supabase.auth.updateUser({
+    password:document.getElementById("newPassword").value
+  });
+
+  setLoading(button,false,"UPDATE PASSWORD");
+
+  if(error) {
+    showMessage(error.message,"error");
+  } else {
+    showMessage("Password updated successfully. You can now sign in.","success");
+    await supabase.auth.signOut();
+    showAuth("login");
+  }
+});
+
+// LOGOUT
+document.getElementById("logoutButton").addEventListener("click",async()=>{
+  const {error}=await supabase.auth.signOut();
+  if(error) {
+    alert("Sign out failed: "+error.message);
+    return;
+  }
+  appScreen.classList.add("hidden");
+  authScreen.classList.remove("hidden");
+  showAuth("login");
+});
+
+// NAVIGATION - INITIAL INTERFACE ONLY
+document.querySelectorAll(".nav-item").forEach(button=>{
+  button.addEventListener("click",()=>{
+    document.querySelectorAll(".nav-item").forEach(b=>
+      b.classList.remove("active")
+    );
+    button.classList.add("active");
+
+    const page=button.dataset.page;
+    if(page==="overview") return;
+
+    alert(
+      "The "+page+" workspace is part of the next development stage. "+
+      "Its database operations and permission checks will be implemented before activation."
+    );
+  });
+});
+
+// HANDLE AUTHENTICATION RECOVERY AND SESSION EVENTS
+supabase.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY") {
+    authScreen.classList.remove("hidden");
+    appScreen.classList.add("hidden");
+    showAuth("reset");
+  }
+});
+
+checkSession();
+</script>
+</body>
+</html>
+
